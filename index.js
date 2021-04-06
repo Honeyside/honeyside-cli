@@ -255,6 +255,16 @@ const go = async () => {
 
         let newFile;
 
+        const stats = fs.statSync(zipPath)
+        const fileSizeInBytes = stats.size;
+        const fileSizeInMegabytes = fileSizeInBytes / (1024*1024);
+
+        if (fileSizeInMegabytes > 10) {
+          console.log('File is too large, maximum allowed file size is 10MB. If you want to upload larger files, please donate on Patreon to help us buying better servers: https://www.patreon.com/honeyside'.red);
+          console.log('');
+          return;
+        }
+
         try {
           newFile = fs.readFileSync(zipPath);
         } catch (e) {
