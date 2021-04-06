@@ -25,11 +25,19 @@ By default, the Envato Package Manager will connect to `epm.honeyside.net`. If y
 
 * Run `envato login` to authenticate against Envato API.
 
+* Run `envato clone [item_id] [purchase_code]` to download an item. The item must have been made available on EPM by its author.
+
+* Run `envato clone [item_id] -` to download an item if you are the author of such item (no purchase code required).
+
 * Run `envato check-purchase [purchase_code]` or `envato purchase [purchase_code]` to verify one of your purchases, given the purchase code.
 
 * Run `envato check-sale [purchase_code]` or `envato sale [purchase_code]` to verify one of your sales, given the purchase code.
 
 * Run `envato archive` to create a zip archive with the current folder. It will use version and name from `package.json` (from the current folder). You can add a `.envatoignore` file to ignore files and folders.
+
+* Run `envato publish [item_id]` to publish an item. The item must already have been approved by Envato. It must be available on at least one marketplace.
+
+* Run `envato unpublish [item_id]` to unpublish an item. You must own the item to remove it from EPM.
 
 ## Contributing
 
