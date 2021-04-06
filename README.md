@@ -3,7 +3,7 @@
 [npm-image]: https://img.shields.io/npm/v/envato-cli.svg
 [npm-url]: https://www.npmjs.com/package/envato-cli
 
-The Envato Package Manager offers several features that will enhance your user experience as Envato user, both for authors and for buyers.
+The Envato Package Manager offers several features that will enhance your experience as Envato user, both for authors and for buyers.
 
 Support us on <a href="https://www.patreon.com/honeyside"><strong>Patreon</strong></a> to get priority updates on our development plan and <strong>voting power on new features</strong>.
 
