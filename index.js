@@ -10,6 +10,7 @@ const fs = require('fs');
 const moment = require('moment');
 const parser = require("file-ignore-parser");
 const AdmZip = require('adm-zip');
+const FormData = require('form-data');
 
 /* start utils */
 
@@ -24,6 +25,32 @@ async function getFiles(dir) {
     return dirent.isDirectory() ? getFiles(res) : res;
   }));
   return Array.prototype.concat(...files);
+}
+
+async function downloadFile(fileUrl, data, outputLocationPath) {
+  const writer = fs.createWriteStream(outputLocationPath, 'binary');
+
+  return axios({
+    method: 'post',
+    url: fileUrl,
+    responseType: 'stream',
+    data,
+  }).then(response => {
+    return new Promise((resolve, reject) => {
+      response.data.pipe(writer);
+      let error = null;
+      writer.on('error', err => {
+        error = err;
+        writer.close();
+        reject(err);
+      });
+      writer.on('close', () => {
+        if (!error) {
+          resolve(true);
+        }
+      });
+    });
+  });
 }
 
 /* end utils */
@@ -52,8 +79,17 @@ const source = config.source || 'https://epm.honeyside.net';
 axios.defaults.headers.post['Authorization'] = `Bearer ${config.access_token}`;
 axios.defaults.headers.get['Authorization'] = `Bearer ${config.access_token}`;
 
+if (!['login', 'source', 'archive', null, undefined, ''].includes(args[0])) {
+  if (moment(config.date).isBefore(moment().subtract(60, 'seconds'))) {
+    console.log('');
+    console.log('token expired, run "envato login" to login again'.red);
+    console.log('');
+    return;
+  }
+}
+
 const go = async () => {
-  let response;
+  let response, ignores, files, zip, count;
   let epmPkg = require(__dirname + '/package.json');
   let pkg = {};
   const exists = fs.existsSync(`${process.cwd()}/package.json`);
@@ -77,7 +113,7 @@ const go = async () => {
       let server;
       app.use((req, res) => {
         response = req.fields.response || {};
-        response.date = moment().toISOString();
+        response.date = moment().add(3600, 'seconds').toISOString();
         fs.writeFileSync(`${__dirname}/config.json`, JSON.stringify({...config, ...response}));
         res.status(200).json({ message: 'written to file' });
         server.close();
@@ -163,10 +199,17 @@ const go = async () => {
       }
       console.log('');
       break;
-    case 'archive':
+    case 'publish':
       console.log('');
+      if (!args[1] || args[1].length === 0) {
+        console.log('item id required');
+        console.log('run "envato publish [item_id]"');
+        console.log('');
+        return;
+      }
+      console.log('trying to publish package'.cyan);
       console.log('creating a zip archive'.cyan);
-      let ignores = [];
+      ignores = [];
       try {
         const exists = fs.existsSync(`${process.cwd()}/.envatoignore`);
         if (exists) {
@@ -179,10 +222,163 @@ const go = async () => {
         console.log('.envatoignore file not present'.yellow);
       }
 
-      const files = (await getFiles(process.cwd())).map(e => e.replace(process.cwd() + '/', ''))
+      files = (await getFiles(process.cwd())).map(e => e.replace(process.cwd() + '/', ''))
 
-      const zip = new AdmZip();
-      let count = 0;
+      zip = new AdmZip();
+      count = 0;
+      for (let file of files) {
+        let shouldZip = true;
+        for (let ignore of ignores) {
+          if (!ignore.startsWith('#')) {
+            if (file.startsWith('archive')) {
+              shouldZip = false;
+            }
+            if (('/' + file).startsWith(ignore)) {
+              shouldZip = false;
+            }
+            if (file.startsWith('.')) {
+              shouldZip = false;
+            }
+            if (file.startsWith(ignore)) {
+              shouldZip = false;
+            }
+          }
+        }
+        if (shouldZip) {
+          zip.addLocalFile(file, file.substr(0, file.length - 1 - path.basename(file).length));
+          count++;
+        }
+      }
+      const zipPath = `${process.cwd()}/archive-${pkg.name}-${pkg.version}.zip`;
+      zip.writeZip(zipPath, async () => {
+        console.log(`archived: ${count} files`.green);
+
+        let newFile;
+
+        try {
+          newFile = fs.readFileSync(zipPath);
+        } catch (e) {
+          console.log(e);
+        }
+
+        let formData = new FormData();
+        formData.append('token', config.access_token);
+        formData.append('id', args[1]);
+        formData.append('slug', args[1]);
+        formData.append('version', pkg.version || 'undefined');
+        formData.append("file", newFile, `archive-${pkg.name}-${pkg.version}.zip`);
+        const request_config = {
+          method: "post",
+          url: `${source}/api/publish`,
+          headers: formData.getHeaders(),
+          data: formData
+        };
+
+        let res;
+
+        try {
+          res = await axios(request_config);
+        } catch (e) {
+          console.log(`${e.response.data.message}`.red);
+          console.log('');
+          return;
+        }
+
+        console.log(`item ${args[1]} published with version ${pkg.version || 'undefined'}, timestamp ${res.data.shield.timestamp}`.green);
+
+        console.log('');
+
+      });
+      break;
+    case 'unpublish':
+      console.log('');
+      if (!args[1] || args[1].length === 0) {
+        console.log('item id required');
+        console.log('run "envato unpublish [item_id]"');
+        console.log('');
+        return;
+      }
+      console.log('trying to unpublish package'.cyan);
+      let res;
+
+      try {
+        res = await axios.post(`${source}/api/unpublish`, {
+          token: config.access_token,
+          id: args[1],
+        });
+      } catch (e) {
+        console.log(`${e.response.data.message}`.red);
+        console.log('');
+        return;
+      }
+
+      console.log(`item ${args[1]} unpublished, timestamp ${moment().toISOString()}`.green);
+
+      console.log('');
+      break;
+    case 'clone':
+      console.log('');
+      if (!args[1] || args[1].length === 0) {
+        console.log('item id required'.red);
+        console.log('run "envato clone [item_id] [purchase_code]"');
+        console.log('if you are the author of this item, run "envato clone [item_id] -"');
+        console.log('');
+        return;
+      }
+      if (!args[2] || args[2].length === 0) {
+        console.log('purchase code required'.red);
+        console.log('run "envato clone [item_id] [purchase_code]"');
+        console.log('if you are the author of this item, run "envato clone [item_id] -"');
+        console.log('');
+        return;
+      }
+      console.log('trying to clone package'.cyan);
+      let res2;
+
+      try {
+        await downloadFile(`${source}/api/get`,{
+          token: config.access_token,
+          id: args[1],
+          code: args[2],
+        }, `${__dirname}/archive-tmp.zip`);
+        const AdmZip = require('adm-zip');
+        const zip = new AdmZip(`${__dirname}/archive-tmp.zip`);
+        zip.extractAllTo(`${process.cwd()}/${args[3] || args[1]}`, true);
+        fs.unlinkSync(`${__dirname}/archive-tmp.zip`);
+      } catch (e) {
+        if (e && e.response && e.response.data) {
+          console.log(`${e.response.data.message}`.red);
+        } else {
+          console.log(e);
+        }
+        console.log('');
+        return;
+      }
+
+      console.log(`item ${args[1]} cloned, timestamp ${moment().toISOString()}`.green);
+
+      console.log('');
+      break;
+    case 'archive':
+      console.log('');
+      console.log('creating a zip archive'.cyan);
+      ignores = [];
+      try {
+        const exists = fs.existsSync(`${process.cwd()}/.envatoignore`);
+        if (exists) {
+          ignores = await parser(`${process.cwd()}/.envatoignore`);
+          console.log(`.envatoignore file has ${Array.from(ignores).length} entries`.cyan);
+        } else {
+          console.log('.envatoignore file not present'.yellow);
+        }
+      } catch (e) {
+        console.log('.envatoignore file not present'.yellow);
+      }
+
+      files = (await getFiles(process.cwd())).map(e => e.replace(process.cwd() + '/', ''))
+
+      zip = new AdmZip();
+      count = 0;
       for (let file of files) {
         let shouldZip = true;
         for (let ignore of ignores) {
@@ -222,4 +418,4 @@ const go = async () => {
   }
 };
 
-go();
+go().then(() => {});

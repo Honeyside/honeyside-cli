@@ -1,6 +1,6 @@
 {
   "name": "envato-cli",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "The (unofficial) Envato Package Manager and CLI.",
   "main": "index.js",
   "scripts": {
@@ -17,6 +17,7 @@
     "express": "^4.17.1",
     "express-formidable": "^1.2.0",
     "file-ignore-parser": "^2.0.0",
+    "form-data": "^4.0.0",
     "moment": "^2.29.1",
     "open": "^8.0.5"
   },
