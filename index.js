@@ -8,6 +8,25 @@ const cors = require('cors');
 const formidable = require('express-formidable');
 const fs = require('fs');
 const moment = require('moment');
+const parser = require("file-ignore-parser");
+const AdmZip = require('adm-zip');
+
+/* start utils */
+
+const path = require('path');
+const { resolve } = require('path');
+const { readdir } = require('fs').promises;
+
+async function getFiles(dir) {
+  const dirents = await readdir(dir, { withFileTypes: true });
+  const files = await Promise.all(dirents.map((dirent) => {
+    const res = resolve(dir, dirent.name);
+    return dirent.isDirectory() ? getFiles(res) : res;
+  }));
+  return Array.prototype.concat(...files);
+}
+
+/* end utils */
 
 const args = process.argv.slice(2);
 
@@ -19,7 +38,7 @@ try {
     config = {};
   }
 } catch (e) {
-  if (!['login', 'source', null, undefined, ''].includes(args[0])) {
+  if (!['login', 'source', 'archive', null, undefined, ''].includes(args[0])) {
     console.log('');
     console.log('login required, run "envato login" first'.red);
     console.log('');
@@ -35,6 +54,12 @@ axios.defaults.headers.get['Authorization'] = `Bearer ${config.access_token}`;
 
 const go = async () => {
   let response;
+  let epmPkg = require(__dirname + '/package.json');
+  let pkg = {};
+  const exists = fs.existsSync(`${process.cwd()}/package.json`);
+  if (exists) {
+    pkg = JSON.parse(fs.readFileSync(`${process.cwd()}/package.json`, 'utf8'));
+  }
 
   switch (args[0]) {
     case 'source':
@@ -138,10 +163,56 @@ const go = async () => {
       }
       console.log('');
       break;
-    default:
-      const pkg = require('./package.json');
+    case 'archive':
       console.log('');
-      console.log(`envato cli ${pkg.version.toString().cyan}`);
+      console.log('creating a zip archive'.cyan);
+      let ignores = [];
+      try {
+        const exists = fs.existsSync(`${process.cwd()}/.envatoignore`);
+        if (exists) {
+          ignores = await parser(`${process.cwd()}/.envatoignore`);
+          console.log(`.envatoignore file has ${Array.from(ignores).length} entries`.cyan);
+        } else {
+          console.log('.envatoignore file not present'.yellow);
+        }
+      } catch (e) {
+        console.log('.envatoignore file not present'.yellow);
+      }
+
+      const files = (await getFiles(process.cwd())).map(e => e.replace(process.cwd() + '/', ''))
+
+      const zip = new AdmZip();
+      let count = 0;
+      for (let file of files) {
+        let shouldZip = true;
+        for (let ignore of ignores) {
+          if (!ignore.startsWith('#')) {
+            if (file.startsWith('archive')) {
+              shouldZip = false;
+            }
+            if (('/' + file).startsWith(ignore)) {
+              shouldZip = false;
+            }
+            if (file.startsWith('.')) {
+              shouldZip = false;
+            }
+            if (file.startsWith(ignore)) {
+              shouldZip = false;
+            }
+          }
+        }
+        if (shouldZip) {
+          zip.addLocalFile(file, file.substr(0, file.length - 1 - path.basename(file).length));
+          count++;
+        }
+      }
+      zip.writeZip(`${process.cwd()}/archive-${pkg.name}-${pkg.version}.zip`);
+      console.log(`archived: ${count} files`.green);
+      console.log('');
+      break;
+    default:
+      console.log('');
+      console.log(`envato cli ${epmPkg.version.toString().cyan}`);
       if (args[1] && args[1].length > 0) {
         console.log('invalid command specified'.yellow);
       } else {

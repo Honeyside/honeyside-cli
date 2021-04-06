@@ -23,11 +23,13 @@ npm install -g envato-cli
 
 By default, the Envato Package Manager will connect to `epm.honeyside.net`. If you want to use an alternative repository, you can change the url by running `envato source [repo_url]`. The repository must be running the EPM server.
 
-Run `envato login` to authenticate against Envato API.
+* Run `envato login` to authenticate against Envato API.
 
-Run `envato check-purchase [purchase_code]` or `envato purchase [purchase_code]` to verify one of your purchases, given the purchase code.
+* Run `envato check-purchase [purchase_code]` or `envato purchase [purchase_code]` to verify one of your purchases, given the purchase code.
 
-Run `envato check-sale [purchase_code]` or `envato sale [purchase_code]` to verify one of your sales, given the purchase code.
+* Run `envato check-sale [purchase_code]` or `envato sale [purchase_code]` to verify one of your sales, given the purchase code.
+
+* Run `envato archive` to create a zip archive with the current folder. It will use version and name from `package.json` (from the current folder). You can add a `.envatoignore` file to ignore files and folders.
 
 ## Contributing
 
