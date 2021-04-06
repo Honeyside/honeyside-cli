@@ -1,0 +1,26 @@
+{
+  "name": "envato-cli",
+  "version": "1.0.2",
+  "description": "The (unofficial) Envato Package Manager and CLI.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "colors": "^1.4.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "express-formidable": "^1.2.0",
+    "moment": "^2.29.1",
+    "open": "^8.0.5"
+  },
+  "bin": {
+    "envato": "index.js",
+    "envato-cli": "index.js",
+    "epm": "index.js"
+  }
+}
