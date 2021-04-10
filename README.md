@@ -33,7 +33,7 @@ By default, the Envato Package Manager will connect to `epm.honeyside.net`. If y
 
 * Run `envato check-sale [purchase_code]` or `envato sale [purchase_code]` to verify one of your sales, given the purchase code.
 
-* Run `envato archive` to create a zip archive with the current folder. It will use version and name from `package.json` (from the current folder). You can add a `.envatoignore` file to ignore files and folders.
+* Run `envato archive` to create a zip archive with the current folder. It will use version and name from `package.json` or from the `.env` file (from the current folder). You can add a `.envatoignore` file to ignore files and folders.
 
 * Run `envato publish [item_id]` to publish an item. The item must already have been approved by Envato. It must be available on at least one marketplace.
 
