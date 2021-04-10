@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+require('dotenv').config();
 require('colors');
 const open = require('open');
 const axios = require('axios');
@@ -95,6 +96,15 @@ const go = async () => {
   const exists = fs.existsSync(`${process.cwd()}/package.json`);
   if (exists) {
     pkg = JSON.parse(fs.readFileSync(`${process.cwd()}/package.json`, 'utf8'));
+  }
+  if (!pkg.name) {
+    pkg.name = process.env.APP_NAME;
+  }
+  if (!pkg.version) {
+    pkg.version = process.env.APP_VERSION;
+  }
+  if (!pkg.build) {
+    pkg.build = process.env.APP_BUILD;
   }
 
   switch (args[0]) {
@@ -249,7 +259,7 @@ const go = async () => {
           count++;
         }
       }
-      const zipPath = `${process.cwd()}/archive-${pkg.name}-${pkg.version}.zip`;
+      const zipPath = `${process.cwd()}/archive-${pkg.name}${pkg.version ? `-${pkg.version}` : ''}${pkg.build ? `-${pkg.build}` : ''}.zip`;
       zip.writeZip(zipPath, async () => {
         console.log(`archived: ${count} files`.green);
 
@@ -276,7 +286,7 @@ const go = async () => {
         formData.append('id', args[1]);
         formData.append('slug', args[1]);
         formData.append('version', pkg.version || 'undefined');
-        formData.append("file", newFile, `archive-${pkg.name}-${pkg.version}.zip`);
+        formData.append("file", newFile, `archive-${pkg.name}${pkg.version ? `-${pkg.version}` : ''}${pkg.build ? `-${pkg.build}` : ''}.zip`);
         const request_config = {
           method: "post",
           url: `${source}/api/publish`,
@@ -412,7 +422,7 @@ const go = async () => {
           count++;
         }
       }
-      zip.writeZip(`${process.cwd()}/archive-${pkg.name}-${pkg.version}.zip`);
+      zip.writeZip(`${process.cwd()}/archive-${pkg.name}${pkg.version ? `-${pkg.version}` : ''}${pkg.build ? `-${pkg.build}` : ''}.zip`);
       console.log(`archived: ${count} files`.green);
       console.log('');
       break;

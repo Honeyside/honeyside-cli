@@ -2,3 +2,4 @@
 /config.json
 /yarn.lock
 /.idea
+.env
