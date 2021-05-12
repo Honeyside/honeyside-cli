@@ -238,9 +238,6 @@ const go = async () => {
             if (('/' + file).startsWith(ignore)) {
               shouldZip = false;
             }
-            if (file.startsWith('.')) {
-              shouldZip = false;
-            }
             if (file.startsWith(ignore)) {
               shouldZip = false;
             }
