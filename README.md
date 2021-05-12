@@ -1,43 +1,35 @@
-# Envato Package Manager [![npm][npm-image]][npm-url]
+# Honeyside CLI [![npm][npm-image]][npm-url]
 
-[npm-image]: https://img.shields.io/npm/v/envato-cli.svg
-[npm-url]: https://www.npmjs.com/package/envato-cli
+[npm-image]: https://img.shields.io/npm/v/honeyside-cli.svg
+[npm-url]: https://www.npmjs.com/package/honeyside-cli
 
-The Envato Package Manager offers several features that will enhance your experience as Envato user, both for authors and for buyers.
+The Honeyside CLI offers useful tools for Honeyside collaborators and Envato authors.
 
 Support us on <a href="https://www.patreon.com/honeyside"><strong>Patreon</strong></a> to get priority updates on our development plan and <strong>voting power on new features</strong>.
 
 ## Installation
 
-Install Envato CLI with yarn or npm:
+Install Honeyside CLI with yarn or npm:
 
 ```
-yarn global add envato-cli
+yarn global add honeyside-cli
 ```
 
 ```
-npm install -g envato-cli
+npm install -g honeyside-cli
 ```
 
 ## Usage & Examples
 
-By default, the Envato Package Manager will connect to `epm.honeyside.net`. If you want to use an alternative repository, you can change the url by running `envato source [repo_url]`. The repository must be running the EPM server.
+By default, the Honeyside CLI will connect to `epm.honeyside.net`. If you want to use an alternative repository, you can change the url by running `envato source [repo_url]`. The repository must be running the EPM server.
 
-* Run `envato login` to authenticate against Envato API.
+* Run `honey login` to authenticate against Envato API.
 
-* Run `envato clone [item_id] [purchase_code]` to download an item. The item must have been made available on EPM by its author.
+* Run `honey check-purchase [purchase_code]` or `honey purchase [purchase_code]` to verify one of your purchases, given the purchase code.
 
-* Run `envato clone [item_id] -` to download an item if you are the author of such item (no purchase code required).
+* Run `honey check-sale [purchase_code]` or `honey sale [purchase_code]` to verify one of your sales, given the purchase code.
 
-* Run `envato check-purchase [purchase_code]` or `envato purchase [purchase_code]` to verify one of your purchases, given the purchase code.
-
-* Run `envato check-sale [purchase_code]` or `envato sale [purchase_code]` to verify one of your sales, given the purchase code.
-
-* Run `envato archive` to create a zip archive with the current folder. It will use version and name from `package.json` or from the `.env` file (from the current folder). You can add a `.envatoignore` file to ignore files and folders.
-
-* Run `envato publish [item_id]` to publish an item. The item must already have been approved by Envato. It must be available on at least one marketplace.
-
-* Run `envato unpublish [item_id]` to unpublish an item. You must own the item to remove it from EPM.
+* Run `honey archive` to create a zip archive with the current folder. It will use version and name from `package.json` or from the `.env` file (from the current folder). You can add a `.envatoignore` file to ignore files and folders.
 
 ## Contributing
 
