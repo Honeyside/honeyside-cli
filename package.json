@@ -1,17 +1,17 @@
 {
-  "name": "envato-cli",
-  "version": "1.1.0",
-  "description": "The (unofficial) Envato Package Manager and CLI.",
+  "name": "honeyside-cli",
+  "version": "1.0.0",
+  "description": "The official Honeyside CLI.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Honeyside/envato-cli.git"
+    "url": "git+https://github.com/Honeyside/honeyside-cli.git"
   },
   "keywords": [
-    "envato",
+    "honeyside",
     "cli",
     "package",
     "manager",
@@ -36,8 +36,9 @@
     "open": "^8.0.5"
   },
   "bin": {
-    "envato": "index.js",
-    "envato-cli": "index.js",
-    "epm": "index.js"
+    "honey": "index.js",
+    "honey-cli": "index.js",
+    "honeyside": "index.js",
+    "honeyside-cli": "index.js"
   }
 }
