@@ -1,6 +1,6 @@
 {
   "name": "honeyside-cli",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "The official Honeyside CLI.",
   "main": "index.js",
   "scripts": {

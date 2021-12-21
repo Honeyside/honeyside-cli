@@ -1,2 +1,5 @@
 config.json
 yarn.lock
+.git
+node_modules
+.idea

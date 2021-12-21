@@ -229,6 +229,9 @@ const go = async () => {
       zip = new AdmZip();
       count = 0;
       for (let file of files) {
+        if ( process.platform === 'win32')  {
+          file = file.substr(__dirname.length + 1, file.length - __dirname.length).split('\\').join('/');
+        }
         let shouldZip = true;
         for (let ignore of ignores) {
           if (!ignore.startsWith('#')) {
@@ -247,7 +250,7 @@ const go = async () => {
           }
         }
         if (shouldZip) {
-          zip.addLocalFile(file, file.substr(0, file.length - 1 - path.basename(file).length));
+          zip.addLocalFile( process.platform === 'win32' ? file.split('/').join('\\') : file, file.substr(0, file.length - 1 - path.basename(file).length));
           count++;
         }
       }

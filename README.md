@@ -21,7 +21,7 @@ npm install -g honeyside-cli
 
 ## Usage & Examples
 
-By default, the Honeyside CLI will connect to `epm.honeyside.net`. If you want to use an alternative repository, you can change the url by running `envato source [repo_url]`. The repository must be running the EPM server.
+By default, the Honeyside CLI will connect to `epm.honeyside.net`. If you want to use an alternative repository, you can change the url by running `honey source [repo_url]`. The repository must be running the EPM server.
 
 * Run `honey login` to authenticate against Envato API.
 
@@ -29,7 +29,7 @@ By default, the Honeyside CLI will connect to `epm.honeyside.net`. If you want t
 
 * Run `honey check-sale [purchase_code]` or `honey sale [purchase_code]` to verify one of your sales, given the purchase code.
 
-* Run `honey archive` to create a zip archive with the current folder. It will use version and name from `package.json` or from the `.env` file (from the current folder). You can add a `.envatoignore` file to ignore files and folders.
+* Run `honey archive` to create a zip archive with the current folder. It will use version and name from `package.json` or from the `.env` file (from the current folder). You can add a `.honeyignore` file to ignore files and folders.
 
 ## Contributing
 
